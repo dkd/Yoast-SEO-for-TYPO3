@@ -1,16 +1,20 @@
-[globalVar = GP:tx_news_pi1|news_preview > 0]
-    lib.yoastSEO.currentURL.stdWrap.typolink {
-        addQueryString.exclude = type,tx_news_pi1[news_preview]
-        additionalParams = &tx_news_pi1[news]={GP:tx_news_pi1|news_preview}
-        additionalParams.insertData = 1
-    }
+# Add uid of news record from detail page to registry
+plugin.tx_news.settings.detail.registerProperties := addToList(uid)
+plugin.tx_news.settings.detail.registerProperties := addToList(alternativeTitle)
+plugin.tx_news.settings.detail.registerProperties := addToList(description)
 
-    lib.yoastSEO.slug.stdWrap.typolink < lib.yoastSEO.currentURL.stdWrap.typolink
-    lib.yoastSEO.slug.stdWrap.typolink.forceAbsoluteUrl = 0
-[global]
-
-[globalVar = GP:tx_news_pi1|news > 0] || [globalVar = GP:tx_news_pi1|news_preview > 0]
+# [globalVar = TSFE:register|newsUid > 0]
     lib.yoastSEO {
+
+        currentURL.stdWrap.typolink {
+            addQueryString.exclude = type,tx_news_pi1[news_preview]
+            additionalParams = &tx_news_pi1[news]={register:newsUid}
+            additionalParams.insertData = 1
+        }
+
+        slug.stdWrap.typolink < lib.yoastSEO.currentURL.stdWrap.typolink
+        slug.stdWrap.typolink.forceAbsoluteUrl = 0
+
         canonicalURL >
         og >
         twitter.title >
@@ -20,7 +24,7 @@
         pageTitle = RECORDS
         pageTitle {
             tables = tx_news_domain_model_news
-            source = {GP:tx_news_pi1|news},{GP:tx_news_pi1|news_preview}
+            source = {register:newsUid}
             source.insertData = 1
 
             conf.tx_news_domain_model_news = TEXT
@@ -28,15 +32,9 @@
             conf.tx_news_domain_model_news.ifEmpty.field = title
         }
 
-        description >
-        description = RECORDS
         description {
-            tables = tx_news_domain_model_news
-            source = {GP:tx_news_pi1|news},{GP:tx_news_pi1|news_preview}
-            source.insertData = 1
-
-            conf.tx_news_domain_model_news = TEXT
-            conf.tx_news_domain_model_news.field = description
+            field >
+            data = register:newsDescription // field:{$plugin.tx_yoastseo.descriptionField}
         }
     }
-[global]
+# [global]
